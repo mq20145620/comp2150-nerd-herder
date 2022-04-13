@@ -8,15 +8,20 @@ public class StudentMove : MonoBehaviour
 {
     [SerializeField] private Range wanderImpulse = new Range(4,5);
     [SerializeField] private Range wanderTime = new Range(1,2);
+    [SerializeField] private float attractForce = 1;
     [SerializeField] private float repelForce = 1;
+    [SerializeField] private float scareForce = 5;
+    [SerializeField] private int nFriends = 3;
 
     new private Rigidbody2D rigidbody;
     private float wander;
     private RadiusTrigger attractionRadius;
+    private RadiusTrigger scareRadius;
     private RadiusTrigger repulsionRadius;
 
     private List<Collider2D> attracting = new List<Collider2D>();
     private List<Collider2D> repelling = new List<Collider2D>();
+    private List<Collider2D> scaring = new List<Collider2D>();
 
 
     void Start()
@@ -26,6 +31,7 @@ public class StudentMove : MonoBehaviour
 
         attractionRadius = transform.Find("AttractionRadius").GetComponent<RadiusTrigger>();
         repulsionRadius = transform.Find("RepulsionRadius").GetComponent<RadiusTrigger>();
+        scareRadius = transform.Find("ScareRadius").GetComponent<RadiusTrigger>();
 
         wander = wanderTime.Random();
     }
@@ -33,6 +39,8 @@ public class StudentMove : MonoBehaviour
     void Update()
     {
         Wander();
+        Scare();
+        Attract();
         Repel();
     }
 
@@ -50,6 +58,26 @@ public class StudentMove : MonoBehaviour
         }
     }
 
+    private void Attract()
+    {
+        int n = 0;
+        foreach (Collider2D other in attracting)
+        {
+            n++;                        
+            Vector2 force = transform.position.xy() - other.ClosestPoint(transform.position);
+
+            if (n <= nFriends) 
+            {
+                force = force.normalized * attractForce;
+            }
+            else 
+            {
+                force = force.normalized * repelForce;
+            }
+            rigidbody.AddForce(force);
+        }
+    }
+
     private void Repel()
     {
         foreach (Collider2D other in repelling)
@@ -58,6 +86,16 @@ public class StudentMove : MonoBehaviour
             force = force.normalized * repelForce;
             rigidbody.AddForce(force);
         }
+    }
+
+    private void Scare()
+    {
+        foreach (Collider2D other in scaring)
+        {
+            Vector2 force = transform.position.xy() - other.ClosestPoint(transform.position);
+            force = force.normalized * scareForce;
+            rigidbody.AddForce(force);
+        }        
     }
 
     public void OnRadiusEnter(RadiusTrigger trigger, Collider2D other) 
@@ -70,6 +108,10 @@ public class StudentMove : MonoBehaviour
         {
             repelling.Add(other);
         }
+        else if (trigger == scareRadius) 
+        {
+            scaring.Add(other);
+        }
     }
 
     public void OnRadiusExit(RadiusTrigger trigger, Collider2D other) 
@@ -81,6 +123,10 @@ public class StudentMove : MonoBehaviour
         else if (trigger == repulsionRadius) 
         {
             repelling.Remove(other);
+        }
+        else if (trigger == scareRadius) 
+        {
+            scaring.Remove(other);
         }
     }
 
@@ -99,6 +145,12 @@ public class StudentMove : MonoBehaviour
         {
             Gizmos.DrawLine(transform.position, other.ClosestPoint(transform.position));
         }
+
+        foreach (Collider2D other in scaring)
+        {
+            Gizmos.DrawLine(transform.position, other.ClosestPoint(transform.position));
+        }
+
     }
 
 }

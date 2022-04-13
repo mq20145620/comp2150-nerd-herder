@@ -15,9 +15,9 @@ TagManager:
   - Buildings
   - Students
   - Boundaries
-  - RadiusTrigger
-  - 
-  - 
+  - RepulsionRadius
+  - AttractionRadius
+  - ScareRadius
   - 
   - 
   - 
