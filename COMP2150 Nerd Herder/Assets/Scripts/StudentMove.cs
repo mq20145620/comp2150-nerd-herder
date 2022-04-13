@@ -11,13 +11,17 @@ public class StudentMove : MonoBehaviour
     [SerializeField] private float attractForce = 1;
     [SerializeField] private float repelForce = 1;
     [SerializeField] private float scareForce = 5;
-    [SerializeField] private int nFriends = 3;
+    [SerializeField] private float scaredMultiplier = 2;
+    [SerializeField] private int minFriends = 1;
+    [SerializeField] private int maxFriends = 4;
 
     new private Rigidbody2D rigidbody;
+    private int nFriends;
     private float wander;
     private RadiusTrigger attractionRadius;
     private RadiusTrigger scareRadius;
     private RadiusTrigger repulsionRadius;
+    private bool scared = false;
 
     private List<Collider2D> attracting = new List<Collider2D>();
     private List<Collider2D> repelling = new List<Collider2D>();
@@ -27,11 +31,11 @@ public class StudentMove : MonoBehaviour
     void Start()
     {
         rigidbody = GetComponent<Rigidbody2D>();
-        rigidbody.drag = 1;
 
         attractionRadius = transform.Find("AttractionRadius").GetComponent<RadiusTrigger>();
         repulsionRadius = transform.Find("RepulsionRadius").GetComponent<RadiusTrigger>();
         scareRadius = transform.Find("ScareRadius").GetComponent<RadiusTrigger>();
+        nFriends = Random.Range(minFriends, maxFriends+1);
 
         wander = wanderTime.Random();
     }
@@ -58,21 +62,45 @@ public class StudentMove : MonoBehaviour
         }
     }
 
+    private int CompareDistance(Collider2D x, Collider2D y) 
+    {
+        if (x == null && y == null) {
+            return 0;
+        }
+        if (x == null) {
+            return -1;
+        }
+        if (y == null) {
+            return 1;
+        }
+        float dx = DistanceTo(x);
+        float dy = DistanceTo(y);
+        return dx.CompareTo(dy);
+    }
+
+    private float DistanceTo(Collider2D other) 
+    {
+        return Vector2.Distance(other.ClosestPoint(transform.position), transform.position.xy());
+    }
+
     private void Attract()
     {
-        int n = 0;
+        attracting.Sort(CompareDistance);
+
+        // if they are scared they want more friends
+        int n = (scared ? -1 : 0);
         foreach (Collider2D other in attracting)
         {
             n++;                        
-            Vector2 force = transform.position.xy() - other.ClosestPoint(transform.position);
+            Vector2 force = other.ClosestPoint(transform.position) - transform.position.xy();
 
             if (n <= nFriends) 
             {
-                force = force.normalized * attractForce;
+                force = force.normalized * attractForce * (scared ? scaredMultiplier : 1);
             }
             else 
             {
-                force = force.normalized * repelForce;
+                force = -force.normalized * repelForce;
             }
             rigidbody.AddForce(force);
         }
@@ -82,19 +110,21 @@ public class StudentMove : MonoBehaviour
     {
         foreach (Collider2D other in repelling)
         {
-            Vector2 force = transform.position.xy() - other.ClosestPoint(transform.position);
-            force = force.normalized * repelForce;
+            Vector2 force = other.ClosestPoint(transform.position) - transform.position.xy();
+            force = -force.normalized * repelForce;
             rigidbody.AddForce(force);
         }
     }
 
     private void Scare()
     {
+        scared = false;
         foreach (Collider2D other in scaring)
         {
-            Vector2 force = transform.position.xy() - other.ClosestPoint(transform.position);
-            force = force.normalized * scareForce;
+            Vector2 force = other.ClosestPoint(transform.position) - transform.position.xy();
+            force = -force.normalized * scareForce;
             rigidbody.AddForce(force);
+            scared = true;
         }        
     }
 
@@ -132,10 +162,16 @@ public class StudentMove : MonoBehaviour
 
     public void OnDrawGizmos() 
     {
-        Gizmos.color = Color.green;
-
+        int n = 0;
         foreach (Collider2D other in attracting)
         {
+            n++;
+            if (n <= nFriends) {
+                Gizmos.color = Color.green;
+            }
+            else {
+                Gizmos.color = Color.red;
+            }
             Gizmos.DrawLine(transform.position, other.ClosestPoint(transform.position));
         }
 
