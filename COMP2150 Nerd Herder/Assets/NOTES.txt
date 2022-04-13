@@ -1,0 +1,9 @@
+NOTES
+
+Buildings:
+* Buildings are a composite of four circle sprites/colliders and two box sprites/colliders. 
+  Resizing should scale the boxes but not the circles
+
+Player movement:
+* Player movement need to use continuous collision to work correctly with the multiple colliders
+  used on buildings
