@@ -15,6 +15,8 @@ public class PlayerMove : MonoBehaviour
     void Start() 
     {
         rigidbody = GetComponent<Rigidbody2D>();
+        // this needs to be continuous to make smooth collision with the corners of buildings
+        rigidbody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
     }
 
     void Update()
