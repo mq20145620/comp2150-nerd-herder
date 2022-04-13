@@ -251,7 +251,7 @@ GameObject:
   - component: {fileID: 824414589}
   - component: {fileID: 824414590}
   - component: {fileID: 824414591}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: AttractionRadius
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -465,7 +465,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!58 &1146528353
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -629,8 +629,8 @@ GameObject:
   - component: {fileID: 1485179962}
   - component: {fileID: 1485179964}
   - component: {fileID: 1485179963}
-  m_Layer: 8
-  m_Name: AttractionRadius (1)
+  m_Layer: 10
+  m_Name: RepulsionRadius
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

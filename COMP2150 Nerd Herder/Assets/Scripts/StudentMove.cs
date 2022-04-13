@@ -8,11 +8,16 @@ public class StudentMove : MonoBehaviour
 {
     [SerializeField] private Range wanderImpulse = new Range(4,5);
     [SerializeField] private Range wanderTime = new Range(1,2);
+    [SerializeField] private float repelForce = 1;
 
     new private Rigidbody2D rigidbody;
     private float wander;
     private RadiusTrigger attractionRadius;
     private RadiusTrigger repulsionRadius;
+
+    private List<Collider2D> attracting = new List<Collider2D>();
+    private List<Collider2D> repelling = new List<Collider2D>();
+
 
     void Start()
     {
@@ -28,6 +33,7 @@ public class StudentMove : MonoBehaviour
     void Update()
     {
         Wander();
+        Repel();
     }
 
     private void Wander() 
@@ -44,15 +50,55 @@ public class StudentMove : MonoBehaviour
         }
     }
 
+    private void Repel()
+    {
+        foreach (Collider2D other in repelling)
+        {
+            Vector2 force = transform.position.xy() - other.ClosestPoint(transform.position);
+            force = force.normalized * repelForce;
+            rigidbody.AddForce(force);
+        }
+    }
+
     public void OnRadiusEnter(RadiusTrigger trigger, Collider2D other) 
     {
-        if (trigger == repulsionRadius) 
+        if (trigger == attractionRadius) 
         {
-            // TODO
+            attracting.Add(other);
         }
         else if (trigger == repulsionRadius) 
         {
-            // TODO
+            repelling.Add(other);
         }
     }
+
+    public void OnRadiusExit(RadiusTrigger trigger, Collider2D other) 
+    {
+        if (trigger == attractionRadius) 
+        {
+            attracting.Remove(other);
+        }
+        else if (trigger == repulsionRadius) 
+        {
+            repelling.Remove(other);
+        }
+    }
+
+    public void OnDrawGizmos() 
+    {
+        Gizmos.color = Color.green;
+
+        foreach (Collider2D other in attracting)
+        {
+            Gizmos.DrawLine(transform.position, other.ClosestPoint(transform.position));
+        }
+
+        Gizmos.color = Color.red;
+
+        foreach (Collider2D other in repelling)
+        {
+            Gizmos.DrawLine(transform.position, other.ClosestPoint(transform.position));
+        }
+    }
+
 }

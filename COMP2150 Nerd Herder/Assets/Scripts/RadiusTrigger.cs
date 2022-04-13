@@ -14,6 +14,17 @@ public class RadiusTrigger : MonoBehaviour
     void OnTriggerEnter2D(Collider2D collider) 
     {
         // pass any enter events to the student class with the identity of this
-        student.OnRadiusEnter(this, collider);
+        if (collider.gameObject != student.gameObject) {
+            student.OnRadiusEnter(this, collider);        
+        }
     }
+
+    void OnTriggerExit2D(Collider2D collider) 
+    {
+        // pass any exit events to the student class with the identity of this
+        if (collider.gameObject != student.gameObject) {
+            student.OnRadiusExit(this, collider);
+        }
+    }
+
 }
