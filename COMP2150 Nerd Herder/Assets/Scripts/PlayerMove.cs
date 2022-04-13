@@ -21,6 +21,10 @@ public class PlayerMove : MonoBehaviour
 
     void Update()
     {
+        if (Gamepad.current == null) {
+            return;
+        }
+
         Vector2 dir = Gamepad.current.leftStick.ReadValue();
 
         float s = speed;
