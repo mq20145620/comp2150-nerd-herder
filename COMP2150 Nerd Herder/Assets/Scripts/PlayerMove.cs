@@ -6,8 +6,9 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMove : MonoBehaviour
 {
-    [SerializeField] 
-    private float speed = 5;
+    [SerializeField] private float speed = 5;
+    [SerializeField] private float speedMultiplier = 2;
+
 
     new private Rigidbody2D rigidbody;
 
@@ -19,6 +20,12 @@ public class PlayerMove : MonoBehaviour
     void Update()
     {
         Vector2 dir = Gamepad.current.leftStick.ReadValue();
-        rigidbody.velocity = dir * speed;
+
+        float s = speed;
+        if (Gamepad.current.buttonWest.isPressed) 
+        {
+            s *= speedMultiplier;
+        }
+        rigidbody.velocity = dir * s;
     }
 }
